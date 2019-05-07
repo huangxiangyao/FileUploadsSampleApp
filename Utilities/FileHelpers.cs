@@ -18,7 +18,7 @@ namespace SampleApp.Utilities
         // If you require a check on specific characters in the IsValidFileExtensionAndSignature
         // method, supply the characters in the _allowedChars field.
         private static byte[] _allowedChars = new byte[] { };
-        private static Dictionary<string, byte[]> _fileSignature2 = new Dictionary<string, byte[]>
+        private static Dictionary<string, byte[]> _fileSignature = new Dictionary<string, byte[]>
             {
                 { ".doc", new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 } },
                 { ".docx", new byte[] { 0x50, 0x4B, 0x03, 0x04 } },
@@ -255,7 +255,7 @@ namespace SampleApp.Utilities
                 // dictionary, the following code tests the input content's
                 // file signature for DOC, DOCX, PDF, ZIP, PNG, JPG, JPEG, 
                 // XLS, XLSX, and GIF.
-                var signature = _fileSignature2[ext];
+                var signature = _fileSignature[ext];
                 reader.BaseStream.Position = 0;
 
                 if (signature.SequenceEqual(reader.ReadBytes(signature.Length)))

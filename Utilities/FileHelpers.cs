@@ -155,11 +155,10 @@ namespace SampleApp.Utilities
                     else if (memoryStream.Length > sizeLimit)
                     {
                         var megabyteSizeLimit = sizeLimit / 1048576;
-                            modelState.AddModelError("File", 
+                        modelState.AddModelError("File", 
                         $"The file exceeds {megabyteSizeLimit:N1} MB.");
                     }
-
-                    if (!IsValidFileExtensionAndSignature(
+                    else if (!IsValidFileExtensionAndSignature(
                         contentDisposition.FileName.Value, memoryStream, 
                         permittedExtensions))
                     {

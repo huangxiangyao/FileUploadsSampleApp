@@ -39,6 +39,7 @@ Security steps that reduce the likelihood of a successful attack are:
 
    1. Set the connection string for a database where you intend to store uploaded file content. Confirm that execute permissions are disabled for all users at that location.
    1. Set the path for stored files.
+   1. Set the file size limit.
 
 1. Perform an initial migration on the database:
 

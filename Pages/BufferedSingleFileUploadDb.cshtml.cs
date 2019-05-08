@@ -17,11 +17,7 @@ namespace SampleApp.Pages
     {
         private readonly AppDbContext _context;
         private readonly long _fileSizeLimit;
-        public readonly string[] _permittedExtensions = 
-            {
-                ".txt", 
-                ".pdf", 
-            };
+        private readonly string[] _permittedExtensions = { ".txt", ".pdf", };
 
         public BufferedSingleFileUploadDbModel(AppDbContext context, 
             IConfiguration config)

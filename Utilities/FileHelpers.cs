@@ -13,13 +13,13 @@ using Microsoft.Net.Http.Headers;
 
 namespace SampleApp.Utilities
 {
-    public class FileHelpers
+    public static class FileHelpers
     {
         // If you require a check on specific characters in the IsValidFileExtensionAndSignature
         // method, supply the characters in the _allowedChars field.
         private static readonly byte[] _allowedChars = { };
         // For more file signatures, see the File Signatures Database: https://www.filesignatures.net/
-        private static Dictionary<string, byte[]> _fileSignature = new Dictionary<string, byte[]>
+        private static readonly Dictionary<string, byte[]> _fileSignature = new Dictionary<string, byte[]>
         {
             { ".doc", new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 } },
             { ".docx", new byte[] { 0x50, 0x4B, 0x03, 0x04 } },
@@ -42,8 +42,8 @@ namespace SampleApp.Utilities
         // systems. For more information, see the topic that accompanies this sample 
         // app.
 
-        public static async Task<byte[]> ProcessFormFile<T>(IFormFile formFile, 
-            ModelStateDictionary modelState, string[] permittedExtensions, 
+        public static async Task<byte[]> ProcessFormFile<T>(IFormFile formFile,
+            ModelStateDictionary modelState, string[] permittedExtensions,
             long sizeLimit)
         {
             var fieldDisplayName = string.Empty;
@@ -52,17 +52,15 @@ namespace SampleApp.Utilities
             // property associated with this IFormFile. If a display
             // name isn't found, error messages simply won't show
             // a display name.
-            MemberInfo property = 
+            MemberInfo property =
                 typeof(T).GetProperty(
-                    formFile.Name.Substring(formFile.Name.IndexOf(".") + 1));
+                    formFile.Name.Substring(formFile.Name.IndexOf(".",
+                    StringComparison.Ordinal) + 1));
 
             if (property != null)
             {
-                var displayAttribute = 
-                    property.GetCustomAttribute(typeof(DisplayAttribute)) 
-                        as DisplayAttribute;
-
-                if (displayAttribute != null)
+                if (property.GetCustomAttribute(typeof(DisplayAttribute)) is
+                    DisplayAttribute displayAttribute)
                 {
                     fieldDisplayName = $"{displayAttribute.Name} ";
                 }
@@ -77,27 +75,27 @@ namespace SampleApp.Utilities
             var invalidFileNameChars = Path.GetInvalidFileNameChars();
             var trustedFileName = WebUtility.HtmlEncode(
                     invalidFileNameChars.Aggregate(
-                        formFile.FileName, (current, c) => 
+                        formFile.FileName, (current, c) =>
                             current.Replace(c, '_')));
 
             // Check the file length. This check doesn't catch files that only have 
             // a BOM as their content.
             if (formFile.Length == 0)
             {
-                modelState.AddModelError(formFile.Name, 
+                modelState.AddModelError(formFile.Name,
                     $"{fieldDisplayName}({trustedFileName}) is empty.");
 
-                return new Byte[0];
+                return new byte[0];
             }
-            
+
             if (formFile.Length > sizeLimit)
             {
                 var megabyteSizeLimit = sizeLimit / 1048576;
-                modelState.AddModelError(formFile.Name, 
+                modelState.AddModelError(formFile.Name,
                     $"{fieldDisplayName}({trustedFileName}) exceeds " +
                     $"{megabyteSizeLimit:N1} MB.");
 
-                return new Byte[0];
+                return new byte[0];
             }
 
             try
@@ -111,14 +109,14 @@ namespace SampleApp.Utilities
                     // empty after removing the BOM.
                     if (memoryStream.Length == 0)
                     {
-                        modelState.AddModelError(formFile.Name, 
+                        modelState.AddModelError(formFile.Name,
                             $"{fieldDisplayName}({trustedFileName}) is empty.");
                     }
 
                     if (!IsValidFileExtensionAndSignature(
                         trustedFileName, memoryStream, permittedExtensions))
                     {
-                        modelState.AddModelError(formFile.Name, 
+                        modelState.AddModelError(formFile.Name,
                             $"{fieldDisplayName}({trustedFileName}) file " +
                             "type isn't permitted or the file's signature " +
                             "doesn't match the file's extension.");
@@ -131,17 +129,17 @@ namespace SampleApp.Utilities
             }
             catch (Exception ex)
             {
-                modelState.AddModelError(formFile.Name, 
+                modelState.AddModelError(formFile.Name,
                     $"{fieldDisplayName}({trustedFileName}) upload failed. " +
                     $"Please contact the Help Desk for support. Error: {ex.HResult}");
                 // Log the exception
             }
 
-            return new Byte[0];
+            return new byte[0];
         }
 
         public static async Task<byte[]> ProcessStreamedFile(
-            MultipartSection section, ContentDispositionHeaderValue contentDisposition, 
+            MultipartSection section, ContentDispositionHeaderValue contentDisposition,
             ModelStateDictionary modelState, string[] permittedExtensions, long sizeLimit)
         {
             try
@@ -158,14 +156,14 @@ namespace SampleApp.Utilities
                     else if (memoryStream.Length > sizeLimit)
                     {
                         var megabyteSizeLimit = sizeLimit / 1048576;
-                        modelState.AddModelError("File", 
+                        modelState.AddModelError("File",
                         $"The file exceeds {megabyteSizeLimit:N1} MB.");
                     }
                     else if (!IsValidFileExtensionAndSignature(
-                        contentDisposition.FileName.Value, memoryStream, 
+                        contentDisposition.FileName.Value, memoryStream,
                         permittedExtensions))
                     {
-                        modelState.AddModelError("File", 
+                        modelState.AddModelError("File",
                             "The file type isn't permitted or the file's " +
                             "signature doesn't match the file's extension.");
                     }
@@ -177,19 +175,16 @@ namespace SampleApp.Utilities
             }
             catch (Exception ex)
             {
-                modelState.AddModelError("File", 
+                modelState.AddModelError("File",
                     "The upload failed. Please contact the Help Desk " +
                     $" for support. Error: {ex.HResult}");
                 // Log the exception
             }
 
-            return new Byte[0];
+            return new byte[0];
         }
 
-                
-
-
-        public static bool IsValidFileExtensionAndSignature(string fileName, Stream data, string[] permittedExtensions)
+        private static bool IsValidFileExtensionAndSignature(string fileName, Stream data, string[] permittedExtensions)
         {
             if (string.IsNullOrEmpty(fileName) || data == null || data.Length == 0)
             {
@@ -213,7 +208,7 @@ namespace SampleApp.Utilities
                     if (_allowedChars.Length == 0)
                     {
                         // Limits characters to ASCII encoding.
-                        for(var i = 0; i < data.Length; i++)
+                        for (var i = 0; i < data.Length; i++)
                         {
                             if (reader.ReadByte() > sbyte.MaxValue)
                             {
@@ -225,7 +220,7 @@ namespace SampleApp.Utilities
                     {
                         // Limits characters to ASCII encoding and
                         // values of the _allowedChars array.
-                        for(var i = 0; i < data.Length; i++)
+                        for (var i = 0; i < data.Length; i++)
                         {
                             var b = reader.ReadByte();
                             if (b > sbyte.MaxValue ||
@@ -240,7 +235,7 @@ namespace SampleApp.Utilities
                 }
 
                 // Uncomment the following code block if you must permit
-                // files whose signature isn't provided in the fileSignature
+                // files whose signature isn't provided in the _fileSignature
                 // dictionary. We recommend that you add file signatures
                 // for files (when possible) for all file types you intend
                 // to allow on the system and perform the file signature
@@ -254,7 +249,7 @@ namespace SampleApp.Utilities
 
                 // File signature check
                 // --------------------
-                // With the file signatures provided in the fileSignature
+                // With the file signatures provided in the _fileSignature
                 // dictionary, the following code tests the input content's
                 // file signature for DOC, DOCX, PDF, ZIP, PNG, JPG, JPEG, 
                 // XLS, XLSX, and GIF.

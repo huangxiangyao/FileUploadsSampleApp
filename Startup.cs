@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using SampleApp.Data;
 using SampleApp.Filters;
-using Microsoft.Extensions.FileProviders;
 
 namespace SampleApp
 {
@@ -26,7 +26,7 @@ namespace SampleApp
                 .AddRazorPagesOptions(options =>
                     {
                         options.Conventions
-                            .AddPageApplicationModelConvention("/StreamedSingleFileUploadPhysical", 
+                            .AddPageApplicationModelConvention("/StreamedSingleFileUploadDb",
                                 model =>
                                 {
                                     model.Filters.Add(
@@ -35,7 +35,7 @@ namespace SampleApp
                                         new DisableFormValueModelBindingAttribute());
                                 });
                         options.Conventions
-                            .AddPageApplicationModelConvention("/StreamedSingleFileUploadDb",
+                            .AddPageApplicationModelConvention("/StreamedSingleFileUploadPhysical",
                                 model =>
                                 {
                                     model.Filters.Add(
@@ -47,19 +47,15 @@ namespace SampleApp
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             #endregion
 
-            #region snippet_FileProvider
             // To list physical files from a path provided by configuration:
-            var physicalProvider = new PhysicalFileProvider(
-                Configuration.GetValue<string>("StoredFilesPath"));
+            var physicalProvider = new PhysicalFileProvider(Configuration.GetValue<string>("StoredFilesPath"));
 
             // To list physical files in the temporary files folder, use:
             //var physicalProvider = new PhysicalFileProvider(Path.GetTempPath());
 
             services.AddSingleton<IFileProvider>(physicalProvider);
-            #endregion
 
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("ConnectionString")));
+            services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMemoryDb"));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

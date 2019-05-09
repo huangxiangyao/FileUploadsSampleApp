@@ -7,13 +7,11 @@ namespace SampleApp.Pages
 {
     public class DeletePhysicalFileModel : PageModel
     {
-        private readonly IConfiguration _config;
         private readonly IFileProvider _fileProvider;
 
-        public DeletePhysicalFileModel(IConfiguration config, IFileProvider fileProvider)
+        public DeletePhysicalFileModel(IFileProvider fileProvider)
         {
             _fileProvider = fileProvider;
-            _config = config;
         }
 
         public IFileInfo RemoveFile { get; private set; }

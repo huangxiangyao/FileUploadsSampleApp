@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -72,7 +73,7 @@ namespace FileUploadSample.Controllers
 
             // Accumulate the form data key-value pairs in the request (formAccumulator).
             var formAccumulator = new KeyValueAccumulator();
-            var trustedFileName = string.Empty;
+            var trustedFileNameForDisplay = string.Empty;
             var streamedFileContent = new byte[0];
 
             var boundary = MultipartRequestHelper.GetBoundary(
@@ -93,14 +94,15 @@ namespace FileUploadSample.Controllers
                     if (MultipartRequestHelper
                         .HasFileContentDisposition(contentDisposition))
                     {
-                        // Don't trust the file name sent by the client. Use Linq to
-                        // remove invalid characters. Another option is to use
-                        // Path.GetRandomFileName to generate a safe random
-                        // file name.
+                        // Don't trust the file name sent by the client. To display
+                        // the file name in a UI, use Path.GetInvalidFileNameChars
+                        // and Linq to remove invalid characters, then HTML-encode the
+                        // result.
                         var invalidFileNameChars = Path.GetInvalidFileNameChars();
-                        trustedFileName = invalidFileNameChars.Aggregate(
-                            contentDisposition.FileName.Value, (current, c) => 
-                                current.Replace(c, '_'));
+                        trustedFileNameForDisplay = WebUtility.HtmlEncode(
+                                invalidFileNameChars.Aggregate(
+                                    contentDisposition.FileName.Value, (current, c) => 
+                                        current.Replace(c, '_')));
 
                         streamedFileContent = 
                             await FileHelpers.ProcessStreamedFile(section, contentDisposition, 
@@ -204,7 +206,7 @@ namespace FileUploadSample.Controllers
             var file = new AppFile()
             {
                 Content = streamedFileContent, 
-                Name = trustedFileName, 
+                Name = trustedFileNameForDisplay,
                 Note = formData.Note,
                 Size = streamedFileContent.Length, 
                 UploadDT = DateTime.UtcNow
@@ -238,7 +240,6 @@ namespace FileUploadSample.Controllers
             var reader = new MultipartReader(boundary, HttpContext.Request.Body);
             var section = await reader.ReadNextSectionAsync();
             var trustedFileName = string.Empty;
-            var streamedFileContent = new byte[0];
 
             while (section != null)
             {
@@ -263,14 +264,18 @@ namespace FileUploadSample.Controllers
                     }
                     else
                     {
-                        // Don't trust the file name sent by the client. Use Linq to
-                        // remove invalid characters. Another option is to use
-                        // Path.GetRandomFileName to generate a safe random
-                        // file name.
+                        // Don't trust the file name sent by the client. To display
+                        // the file name in a UI, use Path.GetInvalidFileNameChars
+                        // and Linq to remove invalid characters, then HTML-encode the
+                        // result. For the file name of the uploaded file stored
+                        // server-side, use Path.GetRandomFileName to generate a safe
+                        // random file name.
                         var invalidFileNameChars = Path.GetInvalidFileNameChars();
-                        trustedFileName = invalidFileNameChars.Aggregate(
-                            contentDisposition.FileName.Value, (current, c) => 
-                                current.Replace(c, '_'));
+                        var trustedFileNameForDisplay = WebUtility.HtmlEncode(
+                                invalidFileNameChars.Aggregate(
+                                    contentDisposition.FileName.Value, (current, c) => 
+                                        current.Replace(c, '_')));
+                        var trustedFileNameForFileStorage = Path.GetRandomFileName();
 
                         // **WARNING!**
                         // In the following example, the file is saved without
@@ -281,7 +286,7 @@ namespace FileUploadSample.Controllers
                         // For more information, see the topic that accompanies 
                         // this sample.
 
-                        streamedFileContent = await FileHelpers.ProcessStreamedFile(
+                        var streamedFileContent = await FileHelpers.ProcessStreamedFile(
                             section, contentDisposition, ModelState, 
                             _permittedExtensions, _fileSizeLimit);
 
@@ -291,13 +296,13 @@ namespace FileUploadSample.Controllers
                         }
 
                         using (var targetStream = System.IO.File.Create(
-                            Path.Combine(_targetFilePath, trustedFileName)))
+                            Path.Combine(_targetFilePath, trustedFileNameForFileStorage)))
                         {
                             await targetStream.WriteAsync(streamedFileContent);
 
                             _logger.LogInformation(
-                                $"Uploaded file '{trustedFileName}' saved to " +
-                                $"'{_targetFilePath}'");
+                                $"Uploaded file '{trustedFileNameForDisplay}' saved to " +
+                                $"'{_targetFilePath}' as {trustedFileNameForFileStorage}");
                         }
                     }
                 }

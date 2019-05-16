@@ -68,14 +68,14 @@ namespace SampleApp.Utilities
                 }
             }
 
-            // Don't trust the file name sent by the client. Use Linq to
-            // remove invalid characters. Since the file name is displayed
-            // in error messages on the webform, the file name is also
-            // HTML encoded. Another option is to use
-            // Path.GetRandomFileName to generate a safe random
-            // file name.
+            // Don't trust the file name sent by the client. To display
+            // the file name in a UI, use Path.GetInvalidFileNameChars
+            // and Linq to remove invalid characters, then HTML-encode the
+            // result. For the file name of the uploaded file stored
+            // server-side, use Path.GetRandomFileName to generate a safe
+            // random file name.
             var invalidFileNameChars = Path.GetInvalidFileNameChars();
-            var trustedFileName = WebUtility.HtmlEncode(
+            var trustedFileNameForDisplay = WebUtility.HtmlEncode(
                     invalidFileNameChars.Aggregate(
                         formFile.FileName, (current, c) => 
                             current.Replace(c, '_')));
@@ -85,7 +85,7 @@ namespace SampleApp.Utilities
             if (formFile.Length == 0)
             {
                 modelState.AddModelError(formFile.Name, 
-                    $"{fieldDisplayName}({trustedFileName}) is empty.");
+                    $"{fieldDisplayName}({trustedFileNameForDisplay}) is empty.");
 
                 return new Byte[0];
             }
@@ -94,7 +94,7 @@ namespace SampleApp.Utilities
             {
                 var megabyteSizeLimit = sizeLimit / 1048576;
                 modelState.AddModelError(formFile.Name, 
-                    $"{fieldDisplayName}({trustedFileName}) exceeds " +
+                    $"{fieldDisplayName}({trustedFileNameForDisplay}) exceeds " +
                     $"{megabyteSizeLimit:N1} MB.");
 
                 return new Byte[0];
@@ -112,14 +112,14 @@ namespace SampleApp.Utilities
                     if (memoryStream.Length == 0)
                     {
                         modelState.AddModelError(formFile.Name, 
-                            $"{fieldDisplayName}({trustedFileName}) is empty.");
+                            $"{fieldDisplayName}({trustedFileNameForDisplay}) is empty.");
                     }
 
                     if (!IsValidFileExtensionAndSignature(
-                        trustedFileName, memoryStream, permittedExtensions))
+                        formFile.FileName, memoryStream, permittedExtensions))
                     {
                         modelState.AddModelError(formFile.Name, 
-                            $"{fieldDisplayName}({trustedFileName}) file " +
+                            $"{fieldDisplayName}({trustedFileNameForDisplay}) file " +
                             "type isn't permitted or the file's signature " +
                             "doesn't match the file's extension.");
                     }
@@ -132,7 +132,7 @@ namespace SampleApp.Utilities
             catch (Exception ex)
             {
                 modelState.AddModelError(formFile.Name, 
-                    $"{fieldDisplayName}({trustedFileName}) upload failed. " +
+                    $"{fieldDisplayName}({trustedFileNameForDisplay}) upload failed. " +
                     $"Please contact the Help Desk for support. Error: {ex.HResult}");
                 // Log the exception
             }
@@ -185,9 +185,6 @@ namespace SampleApp.Utilities
 
             return new Byte[0];
         }
-
-                
-
 
         public static bool IsValidFileExtensionAndSignature(string fileName, Stream data, string[] permittedExtensions)
         {

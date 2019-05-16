@@ -17,8 +17,7 @@ namespace SampleApp.Pages
         private readonly string[] _permittedExtensions = { ".txt", ".pdf", };
         private readonly string _targetFilePath;
 
-        public BufferedMultipleFileUploadPhysicalModel(AppDbContext context, 
-            IConfiguration config)
+        public BufferedMultipleFileUploadPhysicalModel(IConfiguration config)
         {
             _fileSizeLimit = config.GetValue<long>("FileSizeLimit");
 

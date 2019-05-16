@@ -81,7 +81,7 @@ namespace SampleApp.Pages
             // For more information, see the topic that accompanies 
             // this sample.
 
-            var file = new AppFile()
+            var file = new AppFile
             {
                 Content = formFileContent,
                 Name = trustedFileNameForDisplay,

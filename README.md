@@ -33,34 +33,11 @@ Security steps that reduce the likelihood of a successful attack are:
 > * [Unrestricted File Upload](https://www.owasp.org/index.php/Unrestricted_File_Upload)
 > * [Azure Security: Ensure appropriate controls are in place when accepting files from users](/azure/security/azure-security-threat-modeling-tool-input-validation#controls-users)
 
+For additional information, see [Upload files in ASP.NET Core](https://docs.microsoft.com/aspnet/core/mvc/models/file-uploads).
+
 ## How to use the sample
 
-1. In the *appsettings.json* file:
+In the *appsettings.json* file:
 
-   1. Set the connection string for a database where you intend to store uploaded file content. Confirm that execute permissions are disabled for all users at that location.
-   1. Set the path for stored files.
-   1. Set the file size limit.
-
-1. Perform an initial migration on the database:
-
-   # [Visual Studio](#tab/visual-studio)
-
-   1. Open the Package Manager Console (PMC) **Tools** > **NuGet Package Manager** > **Package Manager Console**.
-
-   1. In the PMC, execute the following commands:
-
-      ```PowerShell
-      Add-Migration Initial
-      Update-Database
-      ```
-
-   # [Visual Studio Code / Visual Studio for Mac / .NET Core CLI](#tab/visual-studio-code+visual-studio-mac+netcore-cli)
-
-   From a command shell opened to the project's folder, execute the following commands:
-
-   ```console
-   dotnet ef migrations add InitialCreate
-   dotnet ef database update
-   ```
-
-   ---
+1. Set the path for stored files. Confirm that execute permissions are disabled for all users at that location.
+1. Set the file size limit.

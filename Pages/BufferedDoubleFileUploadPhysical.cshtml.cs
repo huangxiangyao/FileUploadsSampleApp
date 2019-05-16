@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
-using SampleApp.Data;
 using SampleApp.Utilities;
 
 namespace SampleApp.Pages
@@ -17,8 +16,7 @@ namespace SampleApp.Pages
         private readonly string[] _permittedExtensions = { ".txt", ".pdf", };
         private readonly string _targetFilePath;
 
-        public BufferedDoubleFileUploadPhysicalModel(AppDbContext context, 
-            IConfiguration config)
+        public BufferedDoubleFileUploadPhysicalModel(IConfiguration config)
         {
             _fileSizeLimit = config.GetValue<long>("FileSizeLimit");
 
@@ -47,18 +45,18 @@ namespace SampleApp.Pages
                 return Page();
             }
 
-            var formFiles = new List<IFormFile>() 
-                { 
-                    FileUpload.FormFile1, 
-                    FileUpload.FormFile2
-                };
+            var formFiles = new List<IFormFile>()
+            {
+                FileUpload.FormFile1, 
+                FileUpload.FormFile2
+            };
 
             foreach (var formFile in formFiles)
             {
-                var formFileContent = 
+                var formFileContent =
                     await FileHelpers
                         .ProcessFormFile<BufferedDoubleFileUploadPhysical>(
-                            formFile, ModelState, _permittedExtensions, 
+                            formFile, ModelState, _permittedExtensions,
                             _fileSizeLimit);
 
                 if (!ModelState.IsValid)
@@ -97,14 +95,14 @@ namespace SampleApp.Pages
     public class BufferedDoubleFileUploadPhysical
     {
         [Required]
-        [Display(Name="File 1")]
+        [Display(Name = "File 1")]
         public IFormFile FormFile1 { get; set; }
 
         [Required]
-        [Display(Name="File 2")]
+        [Display(Name = "File 2")]
         public IFormFile FormFile2 { get; set; }
 
-        [Display(Name="Note")]
+        [Display(Name = "Note")]
         [StringLength(50, MinimumLength = 0)]
         public string Note { get; set; }
     }

@@ -13,11 +13,10 @@ namespace SampleApp.Pages
     public class BufferedSingleFileUploadPhysicalModel : PageModel
     {
         private readonly long _fileSizeLimit;
-        private readonly string[] _permittedExtensions = { ".txt", ".pdf" };
+        private readonly string[] _permittedExtensions = { ".txt", ".pdf", };
         private readonly string _targetFilePath;
 
-        public BufferedSingleFileUploadPhysicalModel(AppDbContext context, 
-            IConfiguration config)
+        public BufferedSingleFileUploadPhysicalModel(IConfiguration config)
         {
             _fileSizeLimit = config.GetValue<long>("FileSizeLimit");
 

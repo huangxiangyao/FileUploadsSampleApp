@@ -18,7 +18,7 @@ using SampleApp.Filters;
 using SampleApp.Models;
 using SampleApp.Utilities;
 
-namespace FileUploadSample.Controllers
+namespace SampleApp.Controllers
 {
     public class StreamingController : Controller
     {
@@ -142,10 +142,10 @@ namespace FileUploadSample.Controllers
                             // MultipartBodyLengthLimit
                             var value = await streamReader.ReadToEndAsync();
 
-                            if (String.Equals(value, "undefined", 
+                            if (string.Equals(value, "undefined", 
                                 StringComparison.OrdinalIgnoreCase))
                             {
-                                value = String.Empty;
+                                value = string.Empty;
                             }
 
                             formAccumulator.Append(key, value);
@@ -188,11 +188,6 @@ namespace FileUploadSample.Controllers
 
                 return BadRequest(ModelState);
             }
-
-            var uploadedFormData = new FormData()
-            {
-                Note = formData.Note,
-            };
 
             // **WARNING!**
             // In the following example, the file is saved without
@@ -239,7 +234,6 @@ namespace FileUploadSample.Controllers
                 _defaultFormOptions.MultipartBoundaryLengthLimit);
             var reader = new MultipartReader(boundary, HttpContext.Request.Body);
             var section = await reader.ReadNextSectionAsync();
-            var trustedFileName = string.Empty;
 
             while (section != null)
             {

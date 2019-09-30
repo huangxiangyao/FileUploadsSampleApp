@@ -12,7 +12,7 @@ namespace SampleApp.Pages
     public class BufferedSingleFileUploadPhysicalModel : PageModel
     {
         private readonly long _fileSizeLimit;
-        private readonly string[] _permittedExtensions = { ".txt", ".pdf", };
+        private readonly string[] _permittedExtensions = { ".txt" };
         private readonly string _targetFilePath;
 
         public BufferedSingleFileUploadPhysicalModel(IConfiguration config)
@@ -72,9 +72,13 @@ namespace SampleApp.Pages
             // For more information, see the topic that accompanies 
             // this sample.
 
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            using (var fileStream = System.IO.File.Create(filePath))
             {
-                await FileUpload.FormFile.CopyToAsync(fileStream);
+                await fileStream.WriteAsync(formFileContent);
+
+                // To work directly with a FormFile, use the following
+                // instead:
+                //await FileUpload.FormFile.CopyToAsync(fileStream);
             }
 
             return RedirectToPage("./Index");

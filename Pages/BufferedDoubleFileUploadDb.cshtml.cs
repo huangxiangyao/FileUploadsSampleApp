@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +16,7 @@ namespace SampleApp.Pages
     {
         private readonly AppDbContext _context;
         private readonly long _fileSizeLimit;
-        private readonly string[] _permittedExtensions = { ".txt", ".pdf", };
+        private readonly string[] _permittedExtensions = { ".txt" };
 
         public BufferedDoubleFileUploadDbModel(AppDbContext context, 
             IConfiguration config)
@@ -49,10 +46,10 @@ namespace SampleApp.Pages
             }
 
             var formFiles = new List<IFormFile>() 
-                { 
-                    FileUpload.FormFile1, 
-                    FileUpload.FormFile2
-                };
+            {
+                FileUpload.FormFile1, 
+                FileUpload.FormFile2
+            };
 
             foreach (var formFile in formFiles)
             {

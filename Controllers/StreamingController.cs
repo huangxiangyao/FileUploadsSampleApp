@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +24,7 @@ namespace SampleApp.Controllers
         private readonly AppDbContext _context;
         private readonly long _fileSizeLimit;
         private readonly ILogger<StreamingController> _logger;
-        private readonly string[] _permittedExtensions = { ".txt", ".pdf", };
+        private readonly string[] _permittedExtensions = { ".txt" };
         private readonly string _targetFilePath;
 
         // Get the default form options so that we can use them to set the default 
@@ -285,8 +284,10 @@ namespace SampleApp.Controllers
                             await targetStream.WriteAsync(streamedFileContent);
 
                             _logger.LogInformation(
-                                $"Uploaded file '{trustedFileNameForDisplay}' saved to " +
-                                $"'{_targetFilePath}' as {trustedFileNameForFileStorage}");
+                                "Uploaded file '{TrustedFileNameForDisplay}' saved to " +
+                                "'{TargetFilePath}' as {TrustedFileNameForFileStorage}", 
+                                trustedFileNameForDisplay, _targetFilePath, 
+                                trustedFileNameForFileStorage);
                         }
                     }
                 }

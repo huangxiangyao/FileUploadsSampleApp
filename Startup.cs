@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using SampleApp.Data;
 using SampleApp.Filters;
 
@@ -22,29 +23,29 @@ namespace SampleApp
         public void ConfigureServices(IServiceCollection services)
         {
             #region snippet_AddMvc
-            services.AddMvc()
+            services.AddControllers();
+            services.AddRazorPages()
                 .AddRazorPagesOptions(options =>
-                    {
-                        options.Conventions
-                            .AddPageApplicationModelConvention("/StreamedSingleFileUploadDb",
-                                model =>
-                                {
-                                    model.Filters.Add(
-                                        new GenerateAntiforgeryTokenCookieAttribute());
-                                    model.Filters.Add(
-                                        new DisableFormValueModelBindingAttribute());
-                                });
-                        options.Conventions
-                            .AddPageApplicationModelConvention("/StreamedSingleFileUploadPhysical",
-                                model =>
-                                {
-                                    model.Filters.Add(
-                                        new GenerateAntiforgeryTokenCookieAttribute());
-                                    model.Filters.Add(
-                                        new DisableFormValueModelBindingAttribute());
-                                });
-                    })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                {
+                    options.Conventions
+                        .AddPageApplicationModelConvention("/StreamedSingleFileUploadDb",
+                            model =>
+                            {
+                                model.Filters.Add(
+                                    new GenerateAntiforgeryTokenCookieAttribute());
+                                model.Filters.Add(
+                                    new DisableFormValueModelBindingAttribute());
+                            });
+                    options.Conventions
+                        .AddPageApplicationModelConvention("/StreamedSingleFileUploadPhysical",
+                            model =>
+                            {
+                                model.Filters.Add(
+                                    new GenerateAntiforgeryTokenCookieAttribute());
+                                model.Filters.Add(
+                                    new DisableFormValueModelBindingAttribute());
+                            });
+                });
             #endregion
 
             // To list physical files from a path provided by configuration:
@@ -58,7 +59,7 @@ namespace SampleApp
             services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("InMemoryDb"));
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -67,10 +68,20 @@ namespace SampleApp
             else
             {
                 app.UseExceptionHandler("/Error");
+                app.UseHsts();
             }
-
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseMvcWithDefaultRoute();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapDefaultControllerRoute();
+            });
         }
     }
 }

@@ -263,3 +263,5 @@ paket-files/
 __pycache__/
 *.pyc
 /src/Uwv.eDv.Werk.Logging.Serilog/LogTests/Logs
+
+wwwroot/lib/

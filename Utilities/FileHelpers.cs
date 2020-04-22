@@ -215,13 +215,13 @@ namespace SampleApp.Utilities
                     if (_allowedChars.Length == 0)
                     {
                         // Limits characters to ASCII encoding.
-                        for (var i = 0; i < data.Length; i++)
-                        {
-                            if (reader.ReadByte() > sbyte.MaxValue)
-                            {
-                                return false;
-                            }
-                        }
+                        //for (var i = 0; i < data.Length; i++)
+                        //{
+                        //    if (reader.ReadByte() > sbyte.MaxValue)
+                        //    {
+                        //        return false;
+                        //    }
+                        //}
                     }
                     else
                     {
@@ -230,11 +230,12 @@ namespace SampleApp.Utilities
                         for (var i = 0; i < data.Length; i++)
                         {
                             var b = reader.ReadByte();
-                            if (b > sbyte.MaxValue ||
-                                !_allowedChars.Contains(b))
-                            {
-                                return false;
-                            }
+                            //    if (b > sbyte.MaxValue ||
+                            //        !_allowedChars.Contains(b))
+                            //    {
+                            //        return false;
+                            //    }
+                            if (!_allowedChars.Contains(b)) { return false; }
                         }
                     }
 

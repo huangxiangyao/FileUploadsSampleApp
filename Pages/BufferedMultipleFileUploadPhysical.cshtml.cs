@@ -13,7 +13,7 @@ namespace SampleApp.Pages
     public class BufferedMultipleFileUploadPhysicalModel : PageModel
     {
         private readonly long _fileSizeLimit;
-        private readonly string[] _permittedExtensions = { ".txt" };
+        private readonly string[] _permittedExtensions = { ".txt", ".jpg", ".png" };
         private readonly string _targetFilePath;
 
         public BufferedMultipleFileUploadPhysicalModel(IConfiguration config)
@@ -47,10 +47,10 @@ namespace SampleApp.Pages
 
             foreach (var formFile in FileUpload.FormFiles)
             {
-                var formFileContent = 
+                var formFileContent =
                     await FileHelpers
                         .ProcessFormFile<BufferedMultipleFileUploadPhysical>(
-                            formFile, ModelState, _permittedExtensions, 
+                            formFile, ModelState, _permittedExtensions,
                             _fileSizeLimit);
 
                 if (!ModelState.IsValid)
@@ -93,10 +93,10 @@ namespace SampleApp.Pages
     public class BufferedMultipleFileUploadPhysical
     {
         [Required]
-        [Display(Name="File")]
+        [Display(Name = "File")]
         public List<IFormFile> FormFiles { get; set; }
 
-        [Display(Name="Note")]
+        [Display(Name = "Note")]
         [StringLength(50, MinimumLength = 0)]
         public string Note { get; set; }
     }
